@@ -1,0 +1,173 @@
+--数据库中表的创建
+show databases;--显示所有的数据库
+use supermarket; --使用哪一个数据库
+show tables; --显示这个数据库中每一个表
+create database school;--创建一个数据库
+drop database if exists school;--删除创建的数据库(如果有就删除)
+
+desc goods;--查看goods表的结构
+drop table goods;--删除表
+create table goods (--创建这个表
+	goods_id int,
+	goods_name varchar(50),
+	unit_price decimal(7,2),
+	category varchar(50),
+	provider varchar(50)
+);
+--创建一张学生表
+create table student (
+   id int,
+   schoolnumbe int,
+   name varchar(20),
+   qq_mail varchar(20)
+);
+--在学生表中插入数据
+--单行全列和多行指定
+insert into student values (1,0001,'张雨蓉','18800@163.com');
+	insert into student (id,schoolnumber,name) values
+		(2,0002,'张三'),
+		(3,0003,'李四'),
+		(4,0004,'王麻子');
+
+--创建一张考试成绩表
+create table exam_result (
+  id int,
+  name varchar(20),
+  chinese decimal(3,1),
+  english decimal(3,1),
+  math decimal(3,1)
+);
+INSERT INTO exam_result (id,name, chinese, math, english) VALUES
+  		(1,'唐三藏', 67, 98, 56),
+  		 (2,'孙悟空', 87.5, 78, 77),
+    	(3,'猪悟能', 88, 98.5, 90),
+         (4,'曹孟德', 82, 84, 67),
+            (5,'刘玄德', 55.5, 85, 45),
+              (6,'孙权', 70, 73, 78.5),
+              (7,'宋公明', 75, 65, 30);
+ create table student ( id int primary key auto_increment,
+    sn int unique,
+    name varchar(20) default 'unkown',
+    qq_mail varchar(20),
+    classes_id int,
+    foreign key(classes_id) references classes(id);
+
+
+
+create table score (
+     id int primary key auto_increment,
+     score decimal(3,1),
+     student_id int,
+     course_id int,
+     foreign key(student_id) references student(id),
+     foreign key(course_id) references course(id)
+    );
+create table emp(
+ id int primary key auto_increment,
+ name varchar(20) not null,
+ role varchar(20) not null,
+ salary decimal(10,3)
+);
+insert into emp(name, role, salary) values
+ ('马云','服务员', 1000.20),
+ ('马化腾','游戏陪玩', 2000.99),
+  ('孙悟空','游戏角色', 999.11),
+   ('猪无能','游戏角色', 333.5),
+   ('沙和尚','游戏角色', 700.33),
+	('隔壁老王','董事长', 12000.66);
+
+insert into classes(name,`desc`) values
+	('计算机系2019级1班','计算机原理,java语言,数据结构和算法'),
+	('中文系2019级2班','中国传统文化'),
+	('自动化2019级','机械自动') ;
+	insert into student(sn, name, qq_mail, classes_id) values
+		('09982','黑旋风李逵','xuanfeng@qq.com',1),
+		 ('00835','菩提老祖',null,1),
+		 ('00391','白素贞',null,1),
+		 ('00031','许仙','xuxian@qq.com',1),
+		 ('00054','不想毕业',null,1),
+		  ('51234','好好说话','say@qq.com',2),
+		  ('83223','tellme',null,2),
+		  ('09527','老外学中文','foreigner@qq.com',2);
+insert into course(name) values ('Java'),('中国传统文化'),('计算机原理'),('语文'),('高阶数学'),('英文');
+insert into score(score, student_id, course_id) values
+-- 黑旋风李逵
+(70.5, 1, 1),(98.5, 1, 3),(33, 1, 5),(98, 1, 6),
+-- 菩提老祖
+(60, 2, 1),(59.5, 2, 5),
+-- 白素贞
+ (33, 3, 1),(68, 3, 3),(99, 3, 5),
+ -- 许仙
+  (67, 4, 1),(23, 4, 3),(56, 4, 5),(72, 4, 6),
+ -- 不想毕业
+ (81, 5, 1),(37, 5, 5),
+ -- 好好说话
+ (56, 6, 2),(43, 6, 4),(79, 6, 6),
+ -- tellme
+ (80, 7, 2),(92, 7, 6);
+ --查询许仙同学的成绩
+ select sco.score from student stu, score sco where stu.id = sco.student_id and stu.name = '许仙';
+--查询所有同学的总成绩及同学的个人信息
+select
+stu.sn,
+stu.name,
+stu.qq_mail,
+sum(sco.score)
+from
+ student stu inner join score sco on stu.id=sco.student_id
+group by
+sco.student_id;
+--查询所有同学的成绩和个人信息
+select * from student stu join score sco on stu.id = sco.student_id;
+
+select
+stu.id,
+stu.sn,
+stu.name,
+stu.qq_mail,
+sco.score,
+sco.course_id,
+cou.name
+from
+student stu
+left join score sco on stu.id = sco.student_id
+left join course cou on sco.course_id = cou.id
+order by
+stu.id;
+
+select id,name from course where name ='java' or name ='计算机原理';
+select
+s1.*
+from
+score s1,
+score s2
+where
+ s1.student_id = s2.student_id
+ and s1.score < s2.score
+ and s1.course_id =1
+ and s2.course_id = 3;
+
+
+ select
+    stu.*
+    s1.score
+    s2.score
+    from
+    score s1
+    join score s2 on s1.student_id = s2.student_id
+    join student stu on s1.student_id = stu.id
+    join course c1 on s1.course_id = c1.id
+    join course  c2 on s2.course_id=c2.id
+    and s1.score < s2.score
+    and c1.name =`java`
+    and c2.name = `计算机原理`;
+
+select * from student where classes_id = (select classes_id from student where name='不想毕业');
+select
+*
+from
+score
+where
+course_id
+in
+(select id from course where name ='语文'or name='英文');
